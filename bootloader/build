@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# Build bootloader and convert it into a flat binary
+
+cargo build
+
+llvm-objcopy -I elf64-x86-64 -O binary \
+    target/x86_64-bean_os_bootloader/debug/bootloader \
+    target/x86_64-bean_os_bootloader/debug/bootloader.bin
