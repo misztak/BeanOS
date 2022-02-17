@@ -35,7 +35,7 @@ a20_enabled:
 
 	# enable protected mode
 	#
-	# clear interrupts
+	# clear interrupt flag
 	cli
 	# save real mode segment register values
 	push ds
@@ -112,7 +112,7 @@ stage1_start: .asciz "Starting stage one..."
 stage1_done: .asciz "Finished stage one"
 
 gdt_pointer:
-	.word gdt_end - gdt - 1 	# last byte in table
+	.word gdt_end - gdt - 1		# last byte in table
 	.word gdt					# first byte in table
 
 gdt:
@@ -138,4 +138,4 @@ datadesc:
 gdt_end:
 
 .org 510 		# padding
-.word 0xAA55 	# BIOS magic number for bootable disk (last word)
+.word 0xAA55 	# BIOS magic number for bootable sector (last word)

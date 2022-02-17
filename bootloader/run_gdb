@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Run only the bootloader in QEMU and launch a gdb client
+
+qemu-system-x86_64 -s -S -hda target/x86_64-bean_os_bootloader/debug/bootloader.bin &> /dev/null &
+
+gdb

@@ -1,6 +1,7 @@
-ENTRY(_start)
+/* ENTRY(_start) */
 
 SECTIONS {
+    /* 0x000-0x4FF is reserved for the BIOS */
     . = 0x500;
     __bootloader_start = .;
 
