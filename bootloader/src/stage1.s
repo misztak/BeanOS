@@ -96,7 +96,7 @@ load_from_disk:
 	shr ebx, 4		# div 16 (packet size)
 	mov [dap_buffer_segment], bx
 
-	# calc buffer offset from current address
+	# calc buffer segment offset from current address
 	and eax, 0xF	# mod 16 (packet size)
 	mov [dap_buffer_offset], ax
 
@@ -115,7 +115,7 @@ load_from_disk:
 load_next_sectors:
 	mov [dap_num_sectors], bx
 
-	# increment address offset
+	# increment address offset for next iteration
 	shl ebx, 9		# mul 512
 	add ecx, ebx
 
@@ -135,8 +135,6 @@ load_next_sectors:
 	jmp load_from_disk
 
 load_from_disk_complete:
-	# reset dap segment (why?)
-	mov word ptr [dap_buffer_segment], 0
 
 	#
 	# Jump to second stage of bootloader
@@ -242,7 +240,7 @@ dap:
 dap_num_sectors:
 	.word 0		# number of sectors to transfer
 dap_buffer_offset:
-	.word 0		# transfer buffer offset
+	.word 0		# transfer buffer segment offset
 dap_buffer_segment:
 	.word 0		# transfer buffer segment
 dap_lba:

@@ -10,6 +10,7 @@ use core::arch::global_asm;
 // load assembly files
 global_asm!(include_str!("stage1.s"));
 global_asm!(include_str!("stage2.s"));
+global_asm!(include_str!("stage3.s"));
 
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
