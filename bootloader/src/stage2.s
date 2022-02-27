@@ -64,8 +64,8 @@ e820_init:
 	test byte ptr [di + 20], 1	# 24 byte response, is the "ignore this data" bit clear?
 	je .skip_entry
 .no_extended_attr:
-	mov ecx, [di + 8]	# get lower uint32_t of memory region length
-	or ecx, [di + 12]	# 'or' it with the upper half to check for zero
+	mov ecx, [di + 8]		# get lower uint32_t of memory region length
+	or ecx, [di + 12]		# 'or' it with the upper half to check for zero
 	jz .skip_entry			# length=0 means ignore this region
 	inc bp					# increment good region count
 	add di, 24				# next storage spot in buffer

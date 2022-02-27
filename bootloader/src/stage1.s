@@ -54,16 +54,22 @@ a20_enabled:
 	jmp protected_mode
 
 protected_mode:	
-	# set data and extra segment
+	# set data and extra segment selectors to point at third entry in GDT
+	# selected descriptors will remain cached (i.e. valid) even after 
+	# segment register values change (in unreal mode) 
 	mov bx, 0x10
 	mov ds, bx
 	mov es, bx
 
-	# back to real mode
+	# switch back to real mode because we can't call BIOS system services in protected mode
+	# the cached descriptors still point to the GDT which means that we can access all 4GB of
+	# addressable memory from real mode (this variant of real mode is often called unreal mode)
+	# https://wiki.osdev.org/Unreal_Mode
 	and al, 0xFE
 	mov cr0, eax
 
-	# back in real mode, restore saved segment register values
+	# we are now in unreal mode, restore saved segment register values
+	# this does not influence the descriptor caches
 	pop es
 	pop ds
 
@@ -212,7 +218,7 @@ gdt_pointer:
 # https://en.wikipedia.org/wiki/Global_Descriptor_Table#GDT_example
 gdt:
 	.quad 0
-codedesc:
+codedesc:		# cs descriptor at table offset 0x08
 	.byte 0xFF
 	.byte 0xFF
 	.byte 0
@@ -221,7 +227,7 @@ codedesc:
 	.byte 0x9A
 	.byte 0xCF
 	.byte 0
-datadesc:
+datadesc:		# ds, ss, es, fs and gs descriptor at table offset 0x10 
 	.byte 0xFF
     .byte 0xFF
     .byte 0
