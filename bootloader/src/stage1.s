@@ -36,7 +36,7 @@ a20_enabled:
 	# Enable protected mode
 	#
 
-	# clear interrupt flag
+	# clear interrupt mask
 	cli
 	# save real mode segment register values
 	push ds

@@ -3,6 +3,9 @@
 SECTIONS {
     /* 0x000-0x4FF is reserved for the BIOS */
     . = 0x500;
+    /* 512 byte buffer used to transfer the kernel blob from disk */
+    _kernel_buffer = .;
+    . += 512;
     
     /* align to page table size (4k) */
     . = ALIGN(0x1000);

@@ -99,11 +99,15 @@ e820_init:
 	or al, 1
 	mov cr0, eax
 
-	jmp stage_3
+	# far jump, set cs descriptor and flush instruction queue
+	push 0x8
+	mov eax, offset stage_3
+	push eax
+	retf
 
 
 .int15h_failed:
-	mov si, offset int15h_failed_str
+	mov si, offset int15h_failed_msg
 	call rm_println
 	jmp spin
 
@@ -111,7 +115,7 @@ e820_init:
 
 stage2_start: .asciz "Starting stage two..."
 stage2_done: .asciz "Finished stage two"
-int15h_failed_str: .asciz "Failed to load e820 memory map"
+int15h_failed_msg: .asciz "Failed to load e820 memory map"
 
 # number of available memory regions
 memory_map_entries: .word 0
