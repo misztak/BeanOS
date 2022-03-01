@@ -12,6 +12,11 @@ global_asm!(include_str!("stage1.s"));
 global_asm!(include_str!("stage2.s"));
 global_asm!(include_str!("stage3.s"));
 
+#[no_mangle]
+unsafe extern "C" fn stage_4() -> ! {
+    loop {}
+}
+
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
     loop {}
