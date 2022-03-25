@@ -2,4 +2,4 @@
 
 # Run only the bootloader in QEMU
 
-qemu-system-x86_64 -hda target/x86_64-bean_os_bootloader/debug/bootloader.bin
+qemu-system-x86_64 -serial stdio -hda target/x86_64-bean_os_bootloader/debug/bootloader.bin

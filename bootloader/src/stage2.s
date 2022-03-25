@@ -73,7 +73,7 @@ e820_init:
 	test ebx, ebx			# ebx=0 means the list is complete
 	jne .e820_loop_start	# continue with next invocation otherwise
 .e820_done:
-	mov [memory_map_entries], bp	# save the entry count
+	mov [_memory_map_entries], bp	# save the entry count
 	clc						# need to clear the CF after potential 'jc' jump
 
 
@@ -118,4 +118,4 @@ stage2_done: .asciz "Finished stage two"
 int15h_failed_msg: .asciz "Failed to load e820 memory map"
 
 # number of available memory regions
-memory_map_entries: .word 0
+_memory_map_entries: .word 0

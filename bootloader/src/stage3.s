@@ -137,7 +137,7 @@ map_p2_table_entry:
     mov esi, offset stage3_done_msg
     call vga_println
 
-    # finally jump to long mode
+    # finally jump to stage 4 in long mode
     push 0x08       # 64-bit CS descriptor
     mov eax, offset stage_4
     push eax
