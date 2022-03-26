@@ -3,12 +3,5 @@
 version = 3
 
 [[package]]
-name = "bootloader"
-version = "0.1.0"
-dependencies = [
- "x86_64",
-]
-
-[[package]]
 name = "x86_64"
 version = "0.1.0"

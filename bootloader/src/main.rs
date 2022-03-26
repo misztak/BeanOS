@@ -34,9 +34,8 @@ unsafe extern "C" fn stage_4() -> ! {
     Serial::init(COM1);
     Serial::send(COM1, "Serial port initialized\n");
 
-    loop {
-        asm!("cli; hlt");
-    }
+    // spin forever
+    x86_64::asm_wrappers::halt_loop();
 }
 
 fn vga_println(string: &str) {
@@ -57,7 +56,7 @@ fn vga_println(string: &str) {
 
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
-    loop {
-        unsafe { asm!("cli; hlt"); };
-    }
+    vga_println("Bootloader panicked!");
+
+    x86_64::asm_wrappers::halt_loop();
 }

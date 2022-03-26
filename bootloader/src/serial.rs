@@ -1,16 +1,6 @@
-use core::arch::asm;
+use x86_64::asm_wrappers::{read_io, write_io};
 
 pub const COM1: u16 = 0x3F8;
-
-fn read_io(port: u16) -> u8 {
-    let value: u8;
-    unsafe { asm!("in al, dx", out("al") value, in("dx") port); }
-    value
-}
-
-fn write_io(port: u16, data: u8) {
-    unsafe { asm!("out dx, al", in("dx") port, in("al") data); }
-}
 
 pub struct Serial;
 
