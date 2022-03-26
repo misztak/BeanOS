@@ -3,3 +3,4 @@
 
 # Editors / IDEs
 **/*.code-workspace
+**/.gdb_history
