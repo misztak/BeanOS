@@ -59,4 +59,10 @@ SECTIONS {
         _rest_of_bootloader_end_addr = .;
         __bootloader_end = .;
     }
+
+    /* the kernel blob */
+    .kernel :
+    {
+        KEEP(*(.kernel))
+    }
 }
