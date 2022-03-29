@@ -60,9 +60,11 @@ SECTIONS {
         __bootloader_end = .;
     }
 
-    /* the kernel blob */
+    /* the kernel blob (linked in as a static native library) */
     .kernel :
     {
+        /* link-time garbage collection (--gc-sections) will eliminate this section if */
+        /* we don't mark it explicitly with KEEP() */
         KEEP(*(.kernel))
     }
 }

@@ -29,6 +29,9 @@ unsafe extern "C" fn stage_4() -> ! {
     // set stack segment descriptor, clobbers ax
     asm!("xor ax, ax; mov ss, ax", out("ax") _);
 
+    let memory_map_entries = _memory_map_entries;
+    let kernel_size = &_kernel_size as *const _ as usize;
+
     vga_println("Starting stage 4...");
 
     Serial::init(COM1);
