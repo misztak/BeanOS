@@ -29,7 +29,7 @@ fn main() {
     // Step 1: Build the kernel
     //
 
-    println!("1. Building BeanOS in {} mode", build_type);
+    println!("\n### Step 1: [Building BeanOS in {} mode] ###\n", build_type);
 
     let project_root_dir = env::var("CARGO_MANIFEST_DIR")
         .expect("Environment variable 'CARGO_MANIFEST_DIR' undefined");
@@ -48,7 +48,7 @@ fn main() {
     // Step 2: Build the bootloader
     //
 
-    println!("2. Building bootloader in {} mode", build_type);
+    println!("\n### Step 2: [Building bootloader in {} mode] ###\n", build_type);
 
     let bootloader_dir = PathBuf::from(&project_root_dir).join("bootloader");
 
@@ -65,7 +65,7 @@ fn main() {
     // Step 3: Convert ELF file into flat binary
     //
 
-    println!("3. Creating flat binary");
+    println!("\n### Step 3: [Creating flat binary] ###\n");
 
     let output_dir = bootloader_dir.join(format!("target/x86_64-bean_os_bootloader/{}", build_type));
     let bootloader = output_dir.join("bootloader");
@@ -95,5 +95,5 @@ fn main() {
         panic!("Failed to create flat binary");
     }
 
-    println!("Done");
+    println!("### DONE! ###");
 }
