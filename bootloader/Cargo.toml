@@ -10,3 +10,12 @@ x86_64 = { path = "../arch/x86_64" }
 
 [build-dependencies]
 llvm-tools-build = { version = "0.1", package = "llvm-tools" }
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"
+lto = false
+debug = true
+overflow-checks = true

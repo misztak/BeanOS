@@ -53,7 +53,7 @@ unsafe extern "C" fn stage_4() -> ! {
 fn bootloader_start(kernel_size: usize, memory_map_addr: usize, memory_map_entries: usize) -> ! {
     // initialize the serial port logger
     log::init();
-    log::println(format_args!("Serial port logger initialized"));
+    println!("Serial port logger initialized");
 
     let mem_regions = {
         let start_addr = memory_map_addr as *const MemRegion;
@@ -67,12 +67,12 @@ fn bootloader_start(kernel_size: usize, memory_map_addr: usize, memory_map_entri
 }
 
 fn print_memory_map(mem_regions: &[MemRegion]) {
-    log::println(format_args!("Memory Map [{} regions]:", mem_regions.len()));
-    log::println(format_args!("Base Address       | Length             | Type"));
+    println!("Memory Map [{} regions]:", mem_regions.len());
+    println!("Base Address       | Length             | Type");
 
     for region in mem_regions.iter() {
         let reg_type = if region.usable() { "Free Memory (1)" } else { "Reserved Memory (2)" };
-        log::println(format_args!("0x{:016X} | 0x{:016X} | {}", region.address, region.length, reg_type));
+        println!("0x{:016X} | 0x{:016X} | {}", region.address, region.length, reg_type);
     }
 }
 
@@ -97,9 +97,9 @@ fn panic(_info: &PanicInfo) -> ! {
     vga_println("Bootloader panicked!");
 
     if let Some(&args) = _info.message() {
-        log::println(format_args!("panic occured: {:?}", args));
+        println!("panic occured: {:?}", args);
     } else {
-        log::println(format_args!("panic occured"));
+        println!("panic occured");
     }
 
     x86_64::asm_wrappers::halt_loop();

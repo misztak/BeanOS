@@ -1,9 +1,6 @@
 # connect to client
 target remote localhost:1234
 
-# load debug symbols (generated during build)
-symbol-file target/x86_64-bean_os_bootloader/debug/bootloader.sym
-
 # quit GDB without confirmation prompt
 define hook-quit
     set confirm off
