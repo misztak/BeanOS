@@ -1,5 +1,5 @@
 /*!
-Print messages through the serial port (COM1).
+Print messages through the serial port (COM1) or the VGA buffer.
 
 Uses a fixed-size buffer for formatting.
 */
@@ -8,7 +8,19 @@ use core::fmt;
 
 use x86_64::asm_wrappers::{read_io, write_io};
 
+#[derive(PartialEq, Clone, Copy)]
+pub enum LogMode {
+    None,
+    Serial,
+    VGA,
+    Both,
+}
+
+pub static mut LOG_MODE: LogMode = LogMode::None;
+
 const COM1: u16 = 0x3F8;
+
+static mut VGA_BUFFER_OFFSET: u32 = 0;
 
 #[macro_export]
 macro_rules! print {
@@ -21,8 +33,27 @@ macro_rules! println {
     ($($arg:tt)*) => ($crate::print!("{}\n", format_args!($($arg)*)));
 }
 
-/// Initialize the serial port (COM1)
-pub fn init() {
+pub fn _print(args: fmt::Arguments) {
+    let mut buffer = [0u8; 128];
+
+    let mut writer = FmtBuffer::new(&mut buffer);
+    fmt::write(&mut writer, args).expect("Failed to format the string");
+
+    let string = writer.as_str().unwrap();
+    match get_log_mode() {
+        LogMode::None => (),
+        LogMode::VGA => vga_print(string),
+        LogMode::Serial => serial_print(string),
+        LogMode::Both => {
+            vga_print(string);
+            serial_print(string);
+        }
+    }
+}
+
+pub fn init(log_mode: LogMode) {
+    set_log_mode(log_mode);
+
     write_io(COM1 + 1, 0x00);   // disable all interrupts
     write_io(COM1 + 3, 0x80);   // enable DLAB
     write_io(COM1 + 0, 0x03);   // set divisor to 3 (lo byte) (38400 baud)
@@ -30,29 +61,44 @@ pub fn init() {
     write_io(COM1 + 3, 0x03);   // 8 bits, no parity, one stop bit
     write_io(COM1 + 2, 0xC7);   // enable and clear FIFOs, 14 bytes
     write_io(COM1 + 4, 0x0B);   // set OUT2/RTS/DSR
+
+    println!("Logger initialized");
 }
 
-pub fn _print(args: fmt::Arguments) {
-    let mut buffer = [0u8; 128];
+pub fn set_log_mode(log_mode: LogMode) {
+    unsafe { LOG_MODE = log_mode; };
+}
 
-    let mut writer = FmtBuffer::new(&mut buffer);
-    fmt::write(&mut writer, args).expect("Failed to format the string");
+pub fn get_log_mode() -> LogMode {
+    unsafe { LOG_MODE }
+}
 
-    if let Some(s) = writer.as_str() {
-        for char in s.chars() {
-            send_byte(char as u8);
+fn vga_print(string: &str) {
+    let mut address = unsafe { (0xB8000 + VGA_BUFFER_OFFSET) as *mut u16 };
+    for c in string.chars() {
+        if c == '\n' {
+            unsafe { VGA_BUFFER_OFFSET += 160 - VGA_BUFFER_OFFSET % 160; };
+        } else {
+            let vga_char = (0x0F00 as u16) | (c as u16);
+            unsafe { 
+                *address = vga_char;
+                address = address.add(1);
+                VGA_BUFFER_OFFSET += 2;
+            }
         }
     }
 }
 
-fn send_byte(data: u8) {
+fn serial_print(string: &str) {
     fn is_transmit_empty() -> bool {
         read_io(COM1 + 5) & 0x20 != 0
     }
 
-    while !is_transmit_empty() {}
+    for c in string.chars() {
+        while !is_transmit_empty() {}
 
-    write_io(COM1, data);
+        write_io(COM1, c as u8);
+    }
 }
 
 struct FmtBuffer<'a> {

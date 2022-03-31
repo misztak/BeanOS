@@ -1,4 +1,3 @@
-// TODO: remove this
 #![allow(dead_code, unused_variables)]
 
 #![feature(panic_info_message)]
@@ -11,10 +10,10 @@ compile_error!("Wrong target selected for bootloader. Must be 'x86_64-bean_os_bo
 
 use core::panic::PanicInfo;
 use core::arch::{asm, global_asm};
-use core::ptr;
 use core::slice;
 
 mod log;
+use log::LogMode;
 
 mod mem_region;
 use mem_region::MemRegion;
@@ -51,9 +50,8 @@ unsafe extern "C" fn stage_4() -> ! {
 }
 
 fn bootloader_start(kernel_size: usize, memory_map_addr: usize, memory_map_entries: usize) -> ! {
-    // initialize the serial port logger
-    log::init();
-    println!("Serial port logger initialized");
+    // initialize the logger
+    log::init(LogMode::Serial);
 
     let mem_regions = {
         let start_addr = memory_map_addr as *const MemRegion;
@@ -76,26 +74,8 @@ fn print_memory_map(mem_regions: &[MemRegion]) {
     }
 }
 
-fn vga_println(string: &str) {
-    #[allow(non_upper_case_globals)]
-    static mut g_vga_buffer_offset: u32 = 0;
-
-    let mut address = unsafe { (0xB8000 + g_vga_buffer_offset) as *mut u16 };
-    for c in string.chars() {
-        let vga_char = (0x0F00 as u16) | (c as u16);
-        unsafe { 
-            ptr::write(address, vga_char);
-            address = address.add(1);
-            g_vga_buffer_offset += 2;
-        }
-    }
-    unsafe { g_vga_buffer_offset += 160 - g_vga_buffer_offset % 160; };
-}
-
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
-    vga_println("Bootloader panicked!");
-
     if let Some(&args) = _info.message() {
         println!("panic occured: {:?}", args);
     } else {
