@@ -85,7 +85,7 @@ protected_mode:
 
 	#
 	# Load the rest of the bootloader from disk
-	# (this routine only works if size of remaining bootloader is a multiple of 512)
+	# (this routine only works if the remaining bootloader is 512-byte aligned)
 	#
 
 	# store the current base address offset
@@ -157,6 +157,7 @@ load_from_disk_complete:
 
 # infinite loop
 spin:
+	hlt
 	jmp spin
 
 

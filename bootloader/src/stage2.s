@@ -81,8 +81,58 @@ e820_init:
 	# Load the kernel
 	#
 
-	# TODO
-	
+load_kernel:
+	# drive number
+	mov dl, 0x80
+	# load kernel into the transfer buffer located at 0:500h
+	mov word ptr [dap_buffer_segment], 0
+	mov eax, offset _kernel_buffer
+	mov [dap_buffer_offset], ax
+
+	# only 1 sector can be transferred at once
+	mov word ptr [dap_num_sectors], 1
+
+	# calc the start block index
+	mov eax, offset _kernel_start_addr
+	mov ebx, offset _start	# kernel_start - 0x7C00
+	sub eax, ebx
+	shr eax, 9				# div 9
+	mov [dap_lba], eax
+
+	# load the kernel at the 4MiB mark
+	mov edi, 0x400000
+
+	# sector count
+	mov ecx, offset _kernel_size
+	add ecx, 511		# align the kernel blob to 512 byte
+	shr ecx, 9			# div 9
+
+load_next_kernel_sector:
+	# load the sector
+	mov si, offset dap
+	mov ah, 0x42
+	int 0x13
+	jc kernel_load_failed
+
+	# copy sector from transfer buffer to the destination address
+	push ecx
+	push esi
+	mov ecx, 512 / 4	# copy 4 byte at a time -> 128 iterations
+	# mov esi, offset _kernel_buffer
+	mov esi, offset _kernel_buffer
+	# move from esi to edi ecx times, increments esi and edi
+	rep movsd [edi], [esi]
+	pop esi
+	pop ecx
+
+	# next sector
+	mov eax, [dap_lba]
+	inc eax
+	mov [dap_lba], eax
+
+	sub ecx, 1
+	jnz load_next_kernel_sector
+
 
 	mov si, offset stage2_done
 	call rm_println
@@ -111,11 +161,17 @@ e820_init:
 	call rm_println
 	jmp spin
 
+kernel_load_failed:
+	mov si, offset kernel_load_failed_msg
+	call rm_println
+	jmp spin
+
 # DATA
 
 stage2_start: .asciz "Starting stage two..."
 stage2_done: .asciz "Finished stage two"
 int15h_failed_msg: .asciz "Failed to load e820 memory map"
+kernel_load_failed_msg: .asciz "Failed to load the kernel"
 
 # number of available memory regions
 _memory_map_entries: .word 0
