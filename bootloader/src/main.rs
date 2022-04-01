@@ -10,13 +10,12 @@ compile_error!("Wrong target selected for bootloader. Must be 'x86_64-bean_os_bo
 
 use core::panic::PanicInfo;
 use core::arch::{asm, global_asm};
-use core::slice;
 
 mod log;
 use log::LogMode;
 
-mod mem_region;
-use mem_region::MemRegion;
+mod memory;
+use memory::{MemRegion, MemoryMap};
 
 // load assembly files
 global_asm!(include_str!("stage1.s"));
@@ -53,22 +52,25 @@ fn bootloader_start(kernel_size: usize, memory_map_addr: usize, memory_map_entri
     // initialize the logger
     log::init(LogMode::Serial);
 
-    let mem_regions = {
+    let kernel_start: usize = 0x400000;
+    let kernel_end = kernel_start + kernel_size - 1;
+
+    let memory_map = {
         let start_addr = memory_map_addr as *const MemRegion;
-        unsafe { slice::from_raw_parts(start_addr, memory_map_entries) }
+        MemoryMap::from(start_addr, memory_map_entries)
     };
 
-    print_memory_map(mem_regions);
+    print_memory_map(&memory_map);
 
     // spin forever
     x86_64::asm_wrappers::halt_loop();
 }
 
-fn print_memory_map(mem_regions: &[MemRegion]) {
-    println!("Memory Map [{} regions]:", mem_regions.len());
+fn print_memory_map(memory_map: &MemoryMap) {
+    println!("Memory Map [{} regions]:", memory_map.data.len());
     println!("Base Address       | Length             | Type");
 
-    for region in mem_regions.iter() {
+    for region in memory_map.data.iter() {
         let reg_type = if region.usable() { "Free Memory (1)" } else { "Reserved Memory (2)" };
         println!("0x{:016X} | 0x{:016X} | {}", region.address, region.length, reg_type);
     }

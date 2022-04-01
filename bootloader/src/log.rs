@@ -54,6 +54,7 @@ pub fn _print(args: fmt::Arguments) {
 pub fn init(log_mode: LogMode) {
     set_log_mode(log_mode);
 
+    // init serial port
     write_io(COM1 + 1, 0x00);   // disable all interrupts
     write_io(COM1 + 3, 0x80);   // enable DLAB
     write_io(COM1 + 0, 0x03);   // set divisor to 3 (lo byte) (38400 baud)
@@ -61,6 +62,9 @@ pub fn init(log_mode: LogMode) {
     write_io(COM1 + 3, 0x03);   // 8 bits, no parity, one stop bit
     write_io(COM1 + 2, 0xC7);   // enable and clear FIFOs, 14 bytes
     write_io(COM1 + 4, 0x0B);   // set OUT2/RTS/DSR
+
+    // 'init' vga screen
+    vga_clear_screen();
 
     println!("Logger initialized");
 }
@@ -85,6 +89,17 @@ fn vga_print(string: &str) {
                 address = address.add(1);
                 VGA_BUFFER_OFFSET += 2;
             }
+        }
+    }
+}
+
+fn vga_clear_screen() {
+    let mut address = 0xB8000 as *mut u8;
+
+    for i in 0..(160 * 40) as usize {
+        unsafe {
+            *address = 0;
+            address = address.add(1);
         }
     }
 }
