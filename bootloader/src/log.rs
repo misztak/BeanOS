@@ -34,10 +34,10 @@ macro_rules! println {
 }
 
 pub fn _print(args: fmt::Arguments) {
-    let mut buffer = [0u8; 128];
+    let mut buffer = [0u8; 256];
 
     let mut writer = FmtBuffer::new(&mut buffer);
-    fmt::write(&mut writer, args).expect("Failed to format the string");
+    fmt::write(&mut writer, args).expect("Format buffer is too small");
 
     let string = writer.as_str().unwrap();
     match get_log_mode() {

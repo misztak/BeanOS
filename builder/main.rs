@@ -68,13 +68,19 @@ fn main() {
     println!("\n### Step 3: [Creating flat binary] ###\n");
 
     let output_dir = bootloader_dir.join(format!("target/x86_64-bean_os_bootloader/{}", build_type));
-    let bootloader = output_dir.join("bootloader");
+    let bootloader_elf = output_dir.join("bootloader");
+
+    let mut bootloader_image = PathBuf::from(&bootloader_elf);
+    bootloader_image.set_extension("bin");
+
+    let mut bootloader_symbols = PathBuf::from(&bootloader_elf);
+    bootloader_symbols.set_extension("sym");
 
     // keep debug symbols for bootloader debugging
     let mut cmd = Command::new(&objcopy);
     cmd.arg("--only-keep-debug");
-    cmd.arg(&bootloader);
-    cmd.arg(&format!("{}.sym", bootloader.to_str().unwrap()));
+    cmd.arg(&bootloader_elf);
+    cmd.arg(&bootloader_symbols);
     let cmd_status = cmd
         .status()
         .expect("Failed to run llvm-objcopy to extract debug symbols");
@@ -86,8 +92,8 @@ fn main() {
     let mut cmd = Command::new(&objcopy);
     cmd.arg("-I").arg("elf64-x86-64");
     cmd.arg("-O").arg("binary");
-    cmd.arg(&bootloader);
-    cmd.arg(&format!("{}.bin", bootloader.to_str().unwrap()));
+    cmd.arg(&bootloader_elf);
+    cmd.arg(&bootloader_image);
     let cmd_status = cmd
         .status()
         .expect("Failed to run llvm-objcopy to create flat binary");

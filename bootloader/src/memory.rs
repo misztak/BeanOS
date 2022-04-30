@@ -1,4 +1,7 @@
 use core::slice;
+use core::fmt;
+
+use crate::{print, println};
 
 #[repr(C)]
 pub struct MemRegion {
@@ -28,5 +31,21 @@ impl MemoryMap {
             .max()
             .expect("no regions in memory map");
         MemoryMap { data, max_addr }
+    }
+}
+
+impl fmt::Display for MemoryMap {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        println!("Memory Map [{} regions]:", self.data.len());
+        println!("Base Address       | Length             | Type");
+
+        for region in self.data.iter() {
+            let reg_type = if region.usable() { "Free Memory (1)" } else { "Reserved Memory (2)" };
+            println!("0x{:016X} | 0x{:016X} | {}", region.address, region.length, reg_type);
+        }
+
+        print!("Max address: 0x{:016X}", self.max_addr);
+
+        Ok(())
     }
 }
