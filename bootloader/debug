@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Start GDB with the profile-matching symbol file and run server and client with tmux
+
+if [ $1 ]
+then
+    PROFILE=${1:2:7}
+else
+    PROFILE="debug"
+fi
+
+# start QEMU with GDB server
+QEMU_CMD="qemu-system-x86_64 -s -S -monitor stdio -hda target/x86_64-bean_os_bootloader/$PROFILE/bootloader.bin"
+
+# start GDB and load the appropriate symbol file (generated during build)
+GDB_CMD="gdb --symbols=target/x86_64-bean_os_bootloader/$PROFILE/bootloader.sym"
+
+tmux \
+new-session -s bootloader-debug $QEMU_CMD \; \
+split-window -h $GDB_CMD \; \
+select-layout main-vertical
+
