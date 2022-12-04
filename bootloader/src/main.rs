@@ -52,6 +52,9 @@ unsafe extern "C" fn stage_4() -> ! {
 }
 
 fn bootloader_start(kernel_size: usize, memory_map_addr: usize, memory_map_entries: usize) -> ! {
+    // give the x86_64 static library a pointer to the print function
+    unsafe { x86_64::PRINT = Some(log::_print) };
+    
     // initialize the logger
     log::init(LogMode::Serial);
 
@@ -74,7 +77,10 @@ fn bootloader_start(kernel_size: usize, memory_map_addr: usize, memory_map_entri
     let elf_file = ElfFile::from(kernel_blob);
     println!("Kernel entry point: 0x{:016X}", elf_file.entry_point);
     
+    elf_file.print_prog_header();
+
     // spin forever
+    println!("HLT LOOP");
     x86_64::asm_wrappers::halt_loop();
 }
 

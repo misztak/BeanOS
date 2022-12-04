@@ -68,4 +68,15 @@ impl ElfFile {
 
         ElfFile { bytes, entry_point, prog_headers, sect_headers }
     }
+
+    pub fn print_prog_header(self) {
+        println!("Program Headers:");
+        println!("  Type           Offset             VirtAddr           PhysAddr");
+        println!("                 FileSiz            MemSiz              Flags  Align");
+
+        for header in self.prog_headers {
+            println!("  {:14} 0x{:016X} 0x{:016X} 0x{:016X}", header.prog_type, header.offset, header.vaddr, header.paddr);
+            println!("  {:14} 0x{:016X} 0x{:016X}  {}  0x{:X}", "", header.filesz, header.memsz, header.flags, header.align);
+        }
+    }
 }
