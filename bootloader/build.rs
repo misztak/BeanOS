@@ -2,8 +2,12 @@ use std::{env, process::{self, Command}, path::PathBuf};
 use llvm_tools_build;
 
 fn main() {
+    // find out if this is a debug or release build
+    let profile = env::var("PROFILE").expect("PROFILE undefined");
+
     // rebuild if one of these files was modified
     println!("cargo:rerun-if-changed=linker.ld");
+    println!("cargo:rerun-if-changed=../os/target/x86_64-bean_os/{}/bean_os", profile);
 
     // output directory (build script should not modify any files outside this directory)
     let out_dir = PathBuf::from(env::var("OUT_DIR").expect("OUT_DIR undefined"));
@@ -29,7 +33,6 @@ fn main() {
         .expect("llvm-ar not found");
 
     // find the kernel file with the same profile (i.e. debug or release build)
-    let profile = env::var("PROFILE").expect("PROFILE undefined");
     let bootloader_dir = env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR undefined");
     let kernel_dir = PathBuf::from(&bootloader_dir)
         .join(format!("../os/target/x86_64-bean_os/{}/", profile))
