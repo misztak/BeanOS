@@ -1,12 +1,6 @@
 use core::slice;
 
-pub struct ElfFile {
-    pub bytes: &'static [u8],
-    pub entry_point: u64,
-    pub prog_headers: &'static [ProgramHeader],
-    pub sect_headers: &'static [SectionHeader],
-}
-
+#[repr(C)]
 pub struct ProgramHeader {
     pub prog_type: u32,
     pub flags: u32,
@@ -18,6 +12,7 @@ pub struct ProgramHeader {
     pub align: u64,
 }
 
+#[repr(C)]
 pub struct SectionHeader {
     pub name: u32,
     pub sect_type: u32,
@@ -31,16 +26,27 @@ pub struct SectionHeader {
     pub entsize: u64,
 }
 
+pub struct ElfFile {
+    pub bytes: &'static [u8],
+    pub entry_point: u64,
+    pub prog_headers: &'static [ProgramHeader],
+    pub sect_headers: &'static [SectionHeader],
+}
+
 impl ElfFile {
     pub fn from(bytes: &'static [u8]) -> ElfFile {
         let header = &bytes[..64];
 
         // sanity checks
-        assert!(header[..0x4] == [0x7F_u8, 0x45, 0x4C, 0x46], "Wrong magic number in ELF header");
-        assert!(header[0x4] == 2, "64-bit ELF file required");
-        assert!(header[0x5] == 1, "ELF file needs to be little endian");
-        assert!(header[0x7] == 0, "Invalid target ABI");
-        assert!(header[0x10..0x12] == [0x02_u8, 0x00], "ELF file needs to be an executable");
+        assert_eq!(header[..0x4], [0x7F_u8, 0x45, 0x4C, 0x46], "Wrong magic number in ELF header");
+        assert_eq!(header[0x4], 2, "64-bit ELF file required");
+        assert_eq!(header[0x5], 1, "ELF file needs to be little endian");
+        assert_eq!(header[0x7], 0, "Invalid target ABI");
+        assert_eq!(header[0x10..0x12], [0x02_u8, 0x00], "ELF file needs to be an executable");
+
+        use core::mem;
+        debug_assert_eq!(56, mem::size_of::<ProgramHeader>());
+        debug_assert_eq!(64, mem::size_of::<SectionHeader>());
 
         let entry_point = u64::from_le_bytes(header[0x18..0x20].try_into().unwrap());
 
