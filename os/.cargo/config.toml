@@ -3,3 +3,12 @@ build-std = ["core", "compiler_builtins"]
 
 [build]
 target = "x86_64-bean_os.json"
+rustflags = [
+    "-C",
+    "link-args=--image-base 0xFFFF800000000000",
+    "-C",
+    "relocation-model=static",                   # pic in higher half not supported yet
+    "-C",
+    "code-model=large",
+]
+
