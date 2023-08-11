@@ -17,6 +17,9 @@ use log::LogMode;
 
 mod memory;
 use memory::{MemRegion, MemoryMap};
+use x86_64::frame::Frame;
+
+use crate::allocator::FrameAllocator;
 
 mod allocator;
 
@@ -58,9 +61,10 @@ fn bootloader_start(kernel_size: usize, memory_map_addr: usize, memory_map_entri
     // initialize the logger
     log::init(LogMode::Serial);
 
+    // bootloader loads the kernel at the 4MiB mark
     let kernel_start: usize = 0x400000;
     let kernel_end = kernel_start + kernel_size - 1;
-    println!("Kernel blob size: {} byte", kernel_size);
+    println!("Kernel blob loaded at: [start=0x{:X}, end=0x{:X}, size={}]", kernel_start, kernel_end, kernel_size);
 
     let memory_map = {
         let start_addr = memory_map_addr as *const MemRegion;
@@ -68,6 +72,14 @@ fn bootloader_start(kernel_size: usize, memory_map_addr: usize, memory_map_entri
     };
 
     println!("{}", memory_map);
+
+    let free_frames_start_addr = (kernel_start + kernel_size + 4095) & !4095;
+    println!("Start of available frame range: 0x{:X}", free_frames_start_addr);
+
+    let allocator = {
+        let starting_frame = Frame::containing_address(free_frames_start_addr as u64);
+        FrameAllocator::starting_at(starting_frame, memory_map)
+    };
 
     let kernel_blob = {
         let start_addr = kernel_start as *const u8;

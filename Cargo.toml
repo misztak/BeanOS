@@ -10,4 +10,5 @@ name = "image_builder"
 path = "builder/main.rs"
 
 [dependencies]
+# binutils necessary for gluing bootloader and kernel together
 llvm-tools-build = { version = "0.1", package = "llvm-tools" }

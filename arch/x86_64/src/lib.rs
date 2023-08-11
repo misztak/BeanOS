@@ -26,8 +26,14 @@ macro_rules! println {
 /// Provides wrapper functions for routines that require inline assembly.
 pub mod asm_wrappers;
 
-/// Structs and utilities for page frames and other paging-related data structures.
+/// Canonical virtual and physical 64-bit address types.
+pub mod addr;
+
+/// Structs and utilities for pages and other paging-related data structures.
 pub mod paging;
+
+/// Abstractions for physical frames.
+pub mod frame;
 
 /// ELF file structs.
 pub mod elf;

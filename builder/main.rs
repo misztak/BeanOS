@@ -40,12 +40,18 @@ fn main() {
 
     let mut cmd = Command::new("cargo");
     cmd.current_dir(&kernel_dir);
+    cmd.arg("--color=always");
     cmd.arg("build");
     if is_release_build {
         cmd.arg("--release");
     }
-    let cmd_status = cmd.status().expect("Failed to run cargo to build kernel");
-    assert!(cmd_status.success(), "Failed to build kernel");
+    let output = cmd.output().expect("Failed to run cargo to build kernel");
+    assert!(output.status.success(), "Failed to build kernel");
+
+    let bootloader_output = std::str::from_utf8(&output.stderr).unwrap().trim_end();
+    if bootloader_output.contains("dev") {
+        println!("{}", bootloader_output);
+    }
 
     //
     // Step 2: Build the bootloader
