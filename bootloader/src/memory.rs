@@ -35,7 +35,7 @@ impl MemoryMap {
 }
 
 impl fmt::Display for MemoryMap {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, _: &mut fmt::Formatter) -> fmt::Result {
         println!("Memory Map [{} regions]:", self.data.len());
         println!("Base Address       | Length             | Type");
 

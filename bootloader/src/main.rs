@@ -1,5 +1,3 @@
-#![allow(dead_code, unused_variables)]
-
 #![no_std]
 #![no_main]
 
@@ -11,17 +9,17 @@ use core::arch::{asm, global_asm};
 use core::slice;
 
 use x86_64::elf::ElfFile;
+use x86_64::frame::Frame;
+use x86_64::asm_wrappers;
 
 mod log;
 use log::LogMode;
 
 mod memory;
 use memory::{MemRegion, MemoryMap};
-use x86_64::frame::Frame;
-
-use crate::allocator::FrameAllocator;
 
 mod allocator;
+use allocator::FrameAllocator;
 
 // load assembly files
 global_asm!(include_str!("stage1.s"));
@@ -76,10 +74,12 @@ fn bootloader_start(kernel_size: usize, memory_map_addr: usize, memory_map_entri
     let free_frames_start_addr = (kernel_start + kernel_size + 4095) & !4095;
     println!("Start of available frame range: 0x{:X}", free_frames_start_addr);
 
-    let allocator = {
+    let mut allocator = {
         let starting_frame = Frame::containing_address(free_frames_start_addr as u64);
         FrameAllocator::starting_at(starting_frame, memory_map)
     };
+
+    allocator.identity_map_all();
 
     let kernel_blob = {
         let start_addr = kernel_start as *const u8;
@@ -93,12 +93,12 @@ fn bootloader_start(kernel_size: usize, memory_map_addr: usize, memory_map_entri
 
     // spin forever
     println!("HLT LOOP");
-    x86_64::asm_wrappers::halt_loop();
+    asm_wrappers::halt_loop();
 }
 
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
     println!("BOOTLOADER PANIC: {}", _info);
 
-    x86_64::asm_wrappers::halt_loop();
+    asm_wrappers::halt_loop();
 }

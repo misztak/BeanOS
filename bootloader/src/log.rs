@@ -8,6 +8,7 @@ use core::fmt;
 
 use x86_64::asm_wrappers::{read_io, write_io};
 
+#[allow(unused)]
 #[derive(PartialEq, Clone, Copy)]
 pub enum LogMode {
     None,
@@ -96,7 +97,7 @@ fn vga_print(string: &str) {
 fn vga_clear_screen() {
     let mut address = 0xB8000 as *mut u8;
 
-    for i in 0..(160 * 40) as usize {
+    for _ in 0..(160 * 40) as usize {
         unsafe {
             *address = 0;
             address = address.add(1);

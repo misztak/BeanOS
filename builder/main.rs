@@ -153,7 +153,7 @@ fn check_filesize(elf_path: &PathBuf) {
         }
     }
 
-    println!("Bootloader segment size: 0x{:x} ({} out of 480 KiB available)", bootloader_size, bootloader_size / 1024);
+    println!("Bootloader segment size: 0x{:x} ({} out of 480 KiB used)", bootloader_size, bootloader_size / 1024);
     println!("Kernel segment size:     0x{:x} ({} KiB)", kernel_size, kernel_size / 1024);
 
     if bootloader_size > 480 * 1024 {
