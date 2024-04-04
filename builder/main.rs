@@ -45,13 +45,14 @@ fn main() {
     if is_release_build {
         cmd.arg("--release");
     }
-    let output = cmd.output().expect("Failed to run cargo to build kernel");
-    assert!(output.status.success(), "Failed to build kernel");
+    let kernel_cmd_output = cmd.status().expect("Failed to run cargo to build kernel");
 
-    let bootloader_output = std::str::from_utf8(&output.stderr).unwrap().trim_end();
-    if bootloader_output.contains("dev") {
-        println!("{}", bootloader_output);
-    }
+    //let kernel_output = std::str::from_utf8(&output.stderr).unwrap().trim_end();
+    //if kernel_output.contains("dev") {
+    //    println!("{}", kernel_output);
+    //}
+
+    assert!(kernel_cmd_output.success(), "XXXX --- Failed to build kernel --- XXXX");
 
     //
     // Step 2: Build the bootloader
@@ -73,7 +74,7 @@ fn main() {
     let cmd_status = cmd
         .status()
         .expect("Failed to run cargo to build bootloader");
-    assert!(cmd_status.success(), "Failed to build bootloader");
+    assert!(cmd_status.success(), "XXXX --- Failed to build bootloader --- XXXX");
 
     //
     // Step 3: Convert ELF file into flat binary

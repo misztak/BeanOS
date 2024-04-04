@@ -9,4 +9,4 @@ else
     PROFILE="debug"
 fi
 
-qemu-system-x86_64 -enable-kvm -serial stdio -d guest_errors -hda target/x86_64-bean_os_bootloader/$PROFILE/bootloader.bin
+qemu-system-x86_64 -serial stdio -d guest_errors -hda target/x86_64-bean_os_bootloader/$PROFILE/bootloader.bin

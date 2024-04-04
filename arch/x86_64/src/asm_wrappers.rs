@@ -18,8 +18,18 @@ pub fn write_io(port: u16, data: u8) {
 #[inline]
 pub fn get_pml4_base_addr() -> u64 {
     let pml4_addr: u64;
-    unsafe { asm!("mov {val}, cr3", val = out(reg) pml4_addr, options(nomem, nostack)) };
-    pml4_addr & !0xFFF_u64
+    unsafe { asm!("mov {val}, cr3", val = out(reg) pml4_addr, options(nomem, nostack)) }
+    pml4_addr & !0xFFF
+}
+
+/// Aligns the stack to the given boundary.
+///
+/// MUST BE INLINED, otherwise everything blows up. The `align` value must be a power of two.
+#[inline(always)]
+pub fn align_stack_to(align: u64) {
+    let mask = !(align - 1);
+
+    unsafe { asm!("and rsp, {val}", val = in(reg) mask, options(nomem, nostack)); }
 }
 
 /// Spin forever.

@@ -1,6 +1,8 @@
 use core::slice;
 
-#[repr(C)]
+use crate::read_from_packed;
+
+#[repr(C, packed)]
 pub struct ProgramHeader {
     pub prog_type: u32,
     pub flags: u32,
@@ -12,7 +14,7 @@ pub struct ProgramHeader {
     pub align: u64,
 }
 
-#[repr(C)]
+#[repr(C, packed)]
 pub struct SectionHeader {
     pub name: u32,
     pub sect_type: u32,
@@ -44,9 +46,8 @@ impl ElfFile {
         assert_eq!(header[0x7], 0, "Invalid target ABI");
         assert_eq!(header[0x10..0x12], [0x02_u8, 0x00], "ELF file needs to be an executable");
 
-        use core::mem;
-        debug_assert_eq!(56, mem::size_of::<ProgramHeader>());
-        debug_assert_eq!(64, mem::size_of::<SectionHeader>());
+        debug_assert_eq!(56, core::mem::size_of::<ProgramHeader>());
+        debug_assert_eq!(64, core::mem::size_of::<SectionHeader>());
 
         let entry_point = u64::from_le_bytes(header[0x18..0x20].try_into().unwrap());
 
@@ -75,14 +76,14 @@ impl ElfFile {
         ElfFile { bytes, entry_point, prog_headers, sect_headers }
     }
 
-    pub fn print_prog_header(self) {
+    pub fn print_prog_header(&self) {
         println!("Program Headers:");
         println!("  Type           Offset             VirtAddr           PhysAddr");
         println!("                 FileSiz            MemSiz              Flags  Align");
 
         for header in self.prog_headers {
-            println!("  {:14} 0x{:016X} 0x{:016X} 0x{:016X}", header.prog_type, header.offset, header.vaddr, header.paddr);
-            println!("  {:14} 0x{:016X} 0x{:016X}  {}  0x{:X}", "", header.filesz, header.memsz, header.flags, header.align);
+            println!("  {:14} 0x{:016X} 0x{:016X} 0x{:016X}", read_from_packed!(header.prog_type), read_from_packed!(header.offset), read_from_packed!(header.vaddr), read_from_packed!(header.paddr));
+            println!("  {:14} 0x{:016X} 0x{:016X}  {}  0x{:X}", "", read_from_packed!(header.filesz), read_from_packed!(header.memsz), read_from_packed!(header.flags), read_from_packed!(header.align));
         }
     }
 }

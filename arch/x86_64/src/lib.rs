@@ -13,7 +13,10 @@ pub static mut PRINT: Option<PrintFn> = None;
 
 #[macro_export]
 macro_rules! print {
-    ($($arg:tt)*) => (unsafe { $crate::PRINT.expect("PRINT callback was not defined in main program")(format_args!($($arg)*)) });
+    ($($arg:tt)*) => {
+        let print_fn = unsafe { $crate::PRINT.expect("PRINT callback was not defined in main program") };
+        print_fn(format_args!($($arg)*));
+    };
 }
 
 #[macro_export]
@@ -23,14 +26,20 @@ macro_rules! println {
 }
 
 
+/// Various utility functions.
+pub mod utils;
+
 /// Provides wrapper functions for routines that require inline assembly.
 pub mod asm_wrappers;
 
 /// Canonical virtual and physical 64-bit address types.
 pub mod addr;
 
-/// Structs and utilities for pages and other paging-related data structures.
+/// Structs and utilities for pages.
 pub mod paging;
+
+/// Page table abstractions.
+pub mod page_table;
 
 /// Abstractions for physical frames.
 pub mod frame;

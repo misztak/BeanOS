@@ -45,10 +45,15 @@ SECTIONS {
         *(.boot-stage-two)
         *(.boot-stage-three)
 
+        . = ALIGN(8);
         *(.text .text.*)
+        . = ALIGN(8);
         *(.rodata .rodata.*)
+        . = ALIGN(8);
         *(.data .data.*)
+        . = ALIGN(8);
         *(.bss .bss.*)
+        . = ALIGN(8);
         *(.got)
 
         /* stage 1 loads rest of bootloader in 512-byte sized blocks */

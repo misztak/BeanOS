@@ -6,5 +6,8 @@ cd ..
 
 cargo run $1
 
+status=$?
+
 cd bootloader
 
+exit $status

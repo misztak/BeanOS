@@ -18,5 +18,6 @@ dashboard registers -style list 'rax rbx rcx rdx rsi rdi rbp rsp r8 r9 r10 r11 r
 
 # breakpoints
 #b _start
-b stage_4
-b bootloader_start
+b bootloader::stage_4
+b bootloader::bootloader_start
+b bootloader::panic
