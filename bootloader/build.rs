@@ -1,5 +1,4 @@
 use std::{env, process::{self, Command}, path::PathBuf};
-use llvm_tools_build;
 
 fn main() {
     // find out if this is a debug or release build

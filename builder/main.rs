@@ -3,7 +3,6 @@ A glorified build script for the OS and bootloader.
 
 */
 
-use llvm_tools_build;
 use std::{env, path::PathBuf, process::Command};
 
 fn main() {
