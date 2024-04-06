@@ -18,7 +18,7 @@ pub fn write_io(port: u16, data: u8) {
 #[inline]
 pub fn get_pml4_base_addr() -> u64 {
     let pml4_addr: u64;
-    unsafe { asm!("mov {val}, cr3", val = out(reg) pml4_addr, options(nomem, nostack)) }
+    unsafe { asm!("mov {val}, cr3", val = out(reg) pml4_addr, options(nomem, nostack)); }
     pml4_addr & !0xFFF
 }
 

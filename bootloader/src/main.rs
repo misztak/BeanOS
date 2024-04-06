@@ -48,7 +48,7 @@ extern "C" {
 unsafe extern "C" fn stage_4() -> ! {
     // set stack segment descriptor, clobbers ax
     // cannot be done earlier without breaking function calls
-    asm!("xor ax, ax; mov ss, ax", out("ax") _);
+    asm!("xor ax, ax; mov ss, ax", out("ax") _, options(nomem, nostack));
 
     // make sure the stack is aligned to a 16-byte boundary
     asm_wrappers::align_stack_to(16);
